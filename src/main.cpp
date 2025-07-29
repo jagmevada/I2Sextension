@@ -27,7 +27,7 @@ void setup() {
     // Define I2S configuration (can be minimal for just clock output)
     i2s_config_t i2s_config = {
         .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX), // Master mode for generating clock
-        .sample_rate = 192000, // Example sample rate, adjust as needed
+        .sample_rate = 32000, // Example sample rate, adjust as needed
         .bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT,
         .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
         .communication_format = I2S_COMM_FORMAT_STAND_I2S,
