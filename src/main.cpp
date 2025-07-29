@@ -1,3 +1,7 @@
+// PCM1808 control pins
+#define PCM1808_FORMAT_PIN 5
+#define PCM1808_MD1_PIN    17
+#define PCM1808_MD0_PIN    16
 #include <Arduino.h>
 #include "driver/i2s.h"
 
@@ -6,6 +10,18 @@ static const i2s_port_t I2S_PORT = I2S_NUM_0;
 
 void setup() {
     Serial.begin(115200);
+    delay(50); // Allow serial and system to settle
+
+    // Initialize PCM1808 control pins
+    pinMode(PCM1808_FORMAT_PIN, OUTPUT);
+    pinMode(PCM1808_MD1_PIN, OUTPUT);
+    pinMode(PCM1808_MD0_PIN, OUTPUT);
+
+    // Set initial states (FORMAT=LOW, MD1=HIGH, MD0=HIGH)
+    digitalWrite(PCM1808_FORMAT_PIN, LOW); // I2S format
+    digitalWrite(PCM1808_MD1_PIN, HIGH);
+    digitalWrite(PCM1808_MD0_PIN, HIGH);
+    delay(10); // Allow pins to settle
     Serial.println("Starting I2S clock output on GPIO0...");
 
     // Define I2S configuration (can be minimal for just clock output)
