@@ -1,4 +1,3 @@
-
 #include <Arduino.h>
 #include "driver/i2s.h"
 #include <Arduino.h>
@@ -13,6 +12,28 @@
 #define PCM1808_FORMAT_PIN 5
 #define PCM1808_MD1_PIN    17
 #define PCM1808_MD0_PIN    16
+
+void setsck();
+void setadcios();
+
+// Define I2S port
+static const i2s_port_t I2S_PORT = I2S_NUM_0;
+
+void setup() {
+    setCpuFrequencyMhz(240); 
+    Serial.begin(115200);
+    Serial1.begin(2000000, SERIAL_8N1, -1, 0); // baud, config, RX=-1 (not used), TX=GPIO0
+    Serial1.println("Serial1 TX on GPIO0 at 1Mbps");
+    delay(50); // Allow serial and system to settle
+    setsck();
+    setadcios();
+}
+
+void loop() {
+    // Your main application code goes here
+    delay(1); 
+    Serial1.print("UUUUUUUUUUUUUUU");
+}
 
 void setsck(){
     mcpwm_group_set_resolution(MCPWM_UNIT_0, 80000000); // 16 MHz
@@ -41,20 +62,4 @@ void setadcios(){
     digitalWrite(PCM1808_MD1_PIN, HIGH);
     digitalWrite(PCM1808_MD0_PIN, HIGH);
     delay(10); // Allow pins to settle
-}
-
-// Define I2S port
-static const i2s_port_t I2S_PORT = I2S_NUM_0;
-    mcpwm_config_t pwm_config;
-void setup() {
-    setCpuFrequencyMhz(240); 
-    Serial.begin(115200);
-    delay(50); // Allow serial and system to settle
-    setsck();
-    setadcios();
-}
-
-void loop() {
-    // Your main application code goes here
-    delay(1000); 
 }
