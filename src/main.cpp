@@ -71,6 +71,7 @@ void loop() {
 
 // --- I2S RX Task: Reads from I2S1 (ADC/PCM1808) and puts into circular buffer ---
 void i2s_rx_task(void *param) {
+    TickType_t last_wake = xTaskGetTickCount();
     uint8_t rx_buf[2048];
     size_t bytes_read = 0;
     while (1) {
@@ -92,7 +93,7 @@ void i2s_rx_task(void *param) {
             }
             xSemaphoreGive(audio_circ_mutex);
         }
-        vTaskDelay(1); // Yield to other tasks
+         vTaskDelayUntil(&last_wake, pdMS_TO_TICKS(1)); // min 1ms before calling to this function.
     }
 }
 
