@@ -7,7 +7,7 @@
 #include "driver/gpio.h"
 #include "driver/mcpwm.h"
 
-#define CLOCK_GPIO    GPIO_NUM_0
+// #define CLOCK_GPIO    GPIO_NUM_0
 #define MCPWM_UNIT    MCPWM_UNIT_0
 #define MCPWM_TIMER   MCPWM_TIMER_0
 #define MCPWM_OP      MCPWM_OPR_A
@@ -34,11 +34,10 @@ void configure_i2s0_master_tx_pcm5202();
 static const i2s_port_t I2S_PORT = I2S_NUM_0;
 
 void setup() {
-// Configure I2S_NUM_0 as master TX for PCM5202 (8kHz, 24-bit data, 32-bit slot, stereo)
     setCpuFrequencyMhz(240); 
     Serial.begin(115200);
-    Serial1.begin(2000000, SERIAL_8N1, -1, 0); // baud, config, RX=-1 (not used), TX=GPIO0
-    Serial1.println("Serial1 TX on GPIO0 at 1Mbps");
+    Serial1.begin(2500000 , SERIAL_8N1, -1, 2); // baud, config, RX=-1 (not used), TX=GPIO0
+    Serial2.begin(2500000, SERIAL_8N1, 15, -1); // baud, config, RX=GPIO15, TX not used
     delay(50); // Allow serial and system to settle
     setsck();
     setadcios();
@@ -47,6 +46,7 @@ void setup() {
 }
 
 void loop() {
+    Serial2.print("UUUUUUUUUUU");
     // I2S loopback: read from I2S1 (ADC) and write to I2S0 (DAC)
     static uint8_t audio_buf[8192]; // 256 bytes = 32 stereo frames (32-bit slot)
     size_t bytes_read = 0, bytes_written = 0;
