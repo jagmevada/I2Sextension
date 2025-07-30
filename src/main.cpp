@@ -48,22 +48,27 @@ void setup() {
 
 void loop() {
     // I2S loopback: read from I2S1 (ADC) and write to I2S0 (DAC)
-    static uint8_t audio_buf[256]; // 256 bytes = 32 stereo frames (32-bit slot)
+    static uint8_t audio_buf[8192]; // 256 bytes = 32 stereo frames (32-bit slot)
     size_t bytes_read = 0, bytes_written = 0;
     // Read from I2S1 (slave, PCM1808 ADC)
     esp_err_t res = i2s_read(I2S_NUM_1, audio_buf, sizeof(audio_buf), &bytes_read, 10);
-    if (res == ESP_OK && bytes_read > 0) {
-        // Write to I2S0 (master, PCM5202 DAC)
-        i2s_write(I2S_NUM_0, audio_buf, bytes_read, &bytes_written, 10);
-    }
+    i2s_write(I2S_NUM_0, audio_buf, bytes_read, &bytes_written,10);
+    // if (res == ESP_OK && bytes_read > 0) {
+    //     // Write to I2S0 (master, PCM5202 DAC)
+    //     i2s_write(I2S_NUM_0, audio_buf, bytes_read, &bytes_written,1);
+    //     Serial.println(bytes_read);
+    // }
+    // else{
+    //     Serial1.println("nok");
+    // }
 }
 
 void setsck(){
-    mcpwm_group_set_resolution(MCPWM_UNIT_0, 80000000); // 16 MHz
-    mcpwm_timer_set_resolution(MCPWM_UNIT_0, MCPWM_TIMER_0, 80000000); // 16 MHz
+    mcpwm_group_set_resolution(MCPWM_UNIT_0, 160000000); // 16 MHz
+    mcpwm_timer_set_resolution(MCPWM_UNIT_0, MCPWM_TIMER_0, 160000000); // 16 MHz
     mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM0A, GPIO_NUM_4);
     mcpwm_config_t pwm_config;
-    pwm_config.frequency = 2051000;       // Set frequency to 2 MHz
+    pwm_config.frequency = 12307692;       // Set frequency to 2 MHz
     pwm_config.cmpr_a = 50.0;             // Set duty cycle to 50%
     pwm_config.cmpr_b = 50.0;             // Not used for single output but required
     pwm_config.counter_mode = MCPWM_UP_COUNTER; // Up counter mode
@@ -89,16 +94,15 @@ void setadcios(){
 
 // Configure I2S_NUM_1 as slave RX for PCM1808 (8kHz, 512kHz BCK, 24-bit data, 32-bit slot, stereo)
 void configure_i2s1_slave_rx_pcm1808() {
-
     i2s_config_t i2s_config = {
         .mode = (i2s_mode_t)(I2S_MODE_SLAVE | I2S_MODE_RX),
-        .sample_rate = 8000,
+        .sample_rate =48075,// 31250,/// it must be clock/256
         .bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT,
         .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
         .communication_format = I2S_COMM_FORMAT_STAND_I2S,
         .intr_alloc_flags = 0,
-        .dma_buf_count = 4,
-        .dma_buf_len = 64, // 64 frames per buffer (adjust as needed)
+        .dma_buf_count = 30,
+        .dma_buf_len = 512, // 64 frames per buffer (adjust as needed)
         .use_apll = false,
         .tx_desc_auto_clear = false,
         .fixed_mclk = 0,
@@ -123,13 +127,13 @@ void configure_i2s0_master_tx_pcm5202() {
 
     i2s_config_t i2s_config = {
         .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX),
-        .sample_rate = 8000,
+        .sample_rate = 48075,//31250, /// it must be clock/256
         .bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT,
         .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
         .communication_format = I2S_COMM_FORMAT_STAND_I2S,
         .intr_alloc_flags = 0,
-        .dma_buf_count = 4,
-        .dma_buf_len = 64, // 64 frames per buffer (adjust as needed)
+        .dma_buf_count = 30,
+        .dma_buf_len = 512, // 64 frames per buffer (adjust as needed)
         .use_apll = false,
         .tx_desc_auto_clear = false,
         .fixed_mclk = 0,
