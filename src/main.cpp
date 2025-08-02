@@ -76,8 +76,8 @@ static uint8_t i2s_tx_task_tx_buf[I2S_FRAME_SIZE];
 void setup() {
     setCpuFrequencyMhz(240); 
     Serial.begin(921600);
-    Serial1.begin(2500000, SERIAL_8N1, -1, 2, false, AUDIO_FRAME_TOTAL_SIZE<<1);  // TX = GPIO2
-    Serial2.begin(2500000, SERIAL_8N1, 15, -1, false, AUDIO_FRAME_TOTAL_SIZE<<1); // RX = GPIO15
+    Serial1.begin(1000000, SERIAL_8N1, -1, 2, false, AUDIO_FRAME_TOTAL_SIZE<<1);  // TX = GPIO2
+    Serial2.begin(1000000, SERIAL_8N1, 15, -1, false, AUDIO_FRAME_TOTAL_SIZE<<1); // RX = GPIO15
     delay(50); // Allow serial and system to settle
     setsck();
     setadcios();
