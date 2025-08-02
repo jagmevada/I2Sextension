@@ -3,6 +3,12 @@
 #include <Arduino.h>
 #include "driver/gpio.h"
 #include "driver/mcpwm.h"
+#include "ESP32-ENC28J60.h"
+
+#include "esp_netif.h"
+#include "esp_eth.h"
+#include "esp_event.h"
+#include "esp_mac.h"
 
 // #define CLOCK_GPIO    GPIO_NUM_0
 #define MCPWM_UNIT    MCPWM_UNIT_0
