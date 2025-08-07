@@ -8,20 +8,32 @@
 #define MCPWM_UNIT    MCPWM_UNIT_0
 #define MCPWM_TIMER   MCPWM_TIMER_0
 #define MCPWM_OP      MCPWM_OPR_A
+
+
+
+#define SCK_OUT 4
+#define UART_RX_PIN 15
+#define UART_TX_PIN 2
+
+// #define CLOCK_GPIO    GPIO_NUM_0
+#define MCPWM_UNIT    MCPWM_UNIT_0
+#define MCPWM_TIMER   MCPWM_TIMER_0
+#define MCPWM_OP      MCPWM_OPR_A
 // PCM1808 control pins
-#define PCM1808_FORMAT_PIN 5
+#define PCM1808_FORMAT_PIN 16
 #define PCM1808_MD1_PIN    17
-#define PCM1808_MD0_PIN    16
+#define PCM1808_MD0_PIN    5
 
 // I2S1 (ADC/PCM1808) pin macros
-#define I2S1_BCK_PIN   21
-#define I2S1_WS_PIN    18
+#define I2S1_BCK_PIN   18
+#define I2S1_WS_PIN    21
 #define I2S1_DIN_PIN   19
 
 // I2S0 (DAC/PCM5202) pin macros
-#define I2S0_BCK_PIN   27
-#define I2S0_WS_PIN    25
+#define I2S0_BCK_PIN   25
+#define I2S0_WS_PIN    27
 #define I2S0_DOUT_PIN  26
+
 
 void setsck();
 void setadcios();
