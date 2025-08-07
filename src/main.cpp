@@ -224,9 +224,13 @@ void uart_rx_task(void *param) {
                 }
             }
             if (frame_start < 0) {
-                // No header found, discard old bytes
-                uart_rx_len = 0;
-                Serial.println("no header");
+                // No header found, discard all but last (AUDIO_FRAME_TOTAL_SIZE-1) bytes to maximize resync chance
+                if (uart_rx_len > AUDIO_FRAME_TOTAL_SIZE - 1) {
+                    memmove(uart_rx_task_uart_rx_buf, uart_rx_task_uart_rx_buf + uart_rx_len - (AUDIO_FRAME_TOTAL_SIZE - 1), AUDIO_FRAME_TOTAL_SIZE - 1);
+                    uart_rx_len = AUDIO_FRAME_TOTAL_SIZE - 1;
+                }
+                Serial.println("[UART RX] SYNC LOST: No valid frame header found, discarding buffer (kept last bytes for resync)");
+                // After discarding, break out of the frame extraction loop to allow new UART data to be read
                 break;
             }
             if (uart_rx_len - frame_start < AUDIO_FRAME_TOTAL_SIZE) {
@@ -278,6 +282,7 @@ void i2s_tx_task(void *param) {
     while (1) {
         xSemaphoreTake(audio_rx_circ_mutex, portMAX_DELAY);
         size_t available = audio_rx_circ_count;
+        bool got_audio = false;
         if (available >= I2S_FRAME_SIZE) {
             size_t first_chunk = AUDIO_RX_CIRC_BUF_SIZE - audio_rx_circ_tail;
             if (I2S_FRAME_SIZE <= first_chunk) {
@@ -288,12 +293,17 @@ void i2s_tx_task(void *param) {
             }
             audio_rx_circ_tail = (audio_rx_circ_tail + I2S_FRAME_SIZE) % AUDIO_RX_CIRC_BUF_SIZE;
             audio_rx_circ_count -= I2S_FRAME_SIZE;
+            got_audio = true;
         }
         xSemaphoreGive(audio_rx_circ_mutex);
-        if (available >= I2S_FRAME_SIZE) {
+        if (got_audio) {
             size_t bytes_written = 0;
             i2s_write(I2S_NUM_0, i2s_tx_task_tx_buf, I2S_FRAME_SIZE, &bytes_written, 10);
         } else {
+            // Output silence if no new audio is available
+            memset(i2s_tx_task_tx_buf, 0, I2S_FRAME_SIZE);
+            size_t bytes_written = 0;
+            i2s_write(I2S_NUM_0, i2s_tx_task_tx_buf, I2S_FRAME_SIZE, &bytes_written, 10);
             vTaskDelay(1);
         }
     }
