@@ -297,6 +297,13 @@ void i2s_tx_task(void *param) {
         }
         xSemaphoreGive(audio_rx_circ_mutex);
         if (got_audio) {
+            // Apply 2x gain efficiently using bit shift
+            int32_t *samples = (int32_t *)i2s_tx_task_tx_buf;
+            size_t sample_count = I2S_FRAME_SIZE / sizeof(int32_t);
+            for (size_t i = 0; i < sample_count; i++) {
+                int64_t temp = (int64_t)samples[i] << 1;  // 2x gain via shift
+                samples[i] = (temp > INT32_MAX) ? INT32_MAX : (temp < INT32_MIN) ? INT32_MIN : (int32_t)temp;
+            }
             size_t bytes_written = 0;
             i2s_write(I2S_NUM_0, i2s_tx_task_tx_buf, I2S_FRAME_SIZE, &bytes_written, 10);
         } else {
